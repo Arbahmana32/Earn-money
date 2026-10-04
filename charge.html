@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>شحن النقاط ⚡</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-bar">
+            <a href="index.html" class="logo">🎡 عجلة الحظ الكبرى</a>
+            <div class="bal-box"><span id="userBal">0</span> نقطة</div>
+        </div>
+
+        <div class="card">
+            <h3 style="color:#ffd700; margin-bottom:15px;">💎 اختر حزمة الشحن</h3>
+
+            <div class="pkg-item active" id="pkg1" onclick="selectPkg(1)">
+                <div class="pkg-name">
+                    <div style="color: #ffd700;">🔥 الحزمة الذهبية</div>
+                    <div style="font-size:11px; color:#ccc;">اشحن 500,000 نقطة (بـ 50$)</div>
+                </div>
+                <div class="pkg-price" style="color: #00ffcc;">واربح 150$ 💵</div>
+            </div>
+
+            <div class="pkg-item" id="pkg2" onclick="selectPkg(2)">
+                <div class="pkg-name">
+                    <div style="color: #00ffcc;">👑 الحزمة الماسية الكبرى</div>
+                    <div style="font-size:11px; color:#ccc;">اشحن 5,000,000 نقطة (بـ 300$)</div>
+                </div>
+                <div class="pkg-price" style="color: #00ffcc;">واربح 600$ 💵</div>
+            </div>
+
+            <hr style="border:0; border-top:1px solid #5a189a; margin:15px 0;">
+
+            <div class="copy-box">
+                <div style="font-size: 12px; color: #00ffcc; font-weight: bold;">💳 كود / عنوان المحفظة في شام كاش:</div>
+                <div class="copy-field">
+                    <input type="text" id="chamCashCode" value="d62c0ac40dd67f85e365c8f666f39db1" readonly>
+                    <button class="copy-btn" id="copyBtn">نسخ 📋</button>
+                </div>
+            </div>
+
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label>👤 اسمك الكامل في شام كاش:</label>
+                    <input type="text" id="senderName" class="form-control" required placeholder="أدخل اسمك كما هو بالمحفظة">
+                </div>
+                <div class="form-group">
+                    <label>🧾 رقم عملية التحويل / الإشعار:</label>
+                    <input type="text" id="txId" class="form-control" required placeholder="أدخل رقم الإشعار">
+                </div>
+                <div class="form-group">
+                    <label>🖼️ صورة إشعار التحويل:</label>
+                    <input type="file" id="proofImg" accept="image/*" class="file-input" required>
+                </div>
+
+                <button type="submit" class="btn btn-charge" style="margin-top:10px;">إرسال الإشعار والتأكيد ⚡</button>
+                <a href="index.html" class="btn btn-back">⬅️ العودة للرئيسية</a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        var selectedPackage = { id: 1, name: "الحزمة الذهبية (اشحن 50$ واربح 150$)", points: 500000, price: "50$" };
+
+        window.onload = function() {
+            var balance = parseInt(localStorage.getItem("app_balance")) || 0;
+            document.getElementById("userBal").innerText = balance.toLocaleString();
+
+            document.getElementById("copyBtn").onclick = function() {
+                var input = document.getElementById("chamCashCode");
+                input.select();
+                navigator.clipboard.writeText(input.value);
+                this.innerText = "تم النسخ! ✅";
+                var btn = this;
+                setTimeout(function() { btn.innerText = "نسخ 📋"; }, 2000);
+            };
+
+            document.getElementById("paymentForm").onsubmit = function(e) {
+                e.preventDefault();
+                var fileInput = document.getElementById("proofImg");
+                var file = fileInput.files[0];
+
+                var reader = new FileReader();
+                reader.onload = function(evt) {
+                    var deposits = JSON.parse(localStorage.getItem("app_deposits")) || [];
+                    var req = {
+                        id: Date.now(),
+                        senderName: document.getElementById("senderName").value,
+                        txId: document.getElementById("txId").value,
+                        pkgName: selectedPackage.name,
+                        points: selectedPackage.points,
+                        price: selectedPackage.price,
+                        imgData: evt.target.result,
+                        status: "pending",
+                        date: new Date().toLocaleString("ar-EG")
+                    };
+                    deposits.push(req);
+                    localStorage.setItem("app_deposits", JSON.stringify(deposits));
+
+                    alert("تم إرسال إشعار التحويل بنجاح! 🚀\nالطلب الآن قيد المراجعة والتدقيق لدى الأدمن، وسيتم إضافة النقاط فور التأكيد.");
+                    window.location.href = "index.html";
+                };
+
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            };
+        };
+
+        function selectPkg(id) {
+            document.getElementById("pkg1").classList.remove("active");
+            document.getElementById("pkg2").classList.remove("active");
+            document.getElementById("pkg" + id).classList.add("active");
+
+            if (id === 1) {
+                selectedPackage = { id: 1, name: "الحزمة الذهبية (اشحن 50$ واربح 150$)", points: 500000, price: "50$" };
+            } else {
+                selectedPackage = { id: 2, name: "الحزمة الماسية (اشحن 300$ واربح 600$)", points: 5000000, price: "300$" };
+            }
+        }
+    </script>
+</body>
+</html>
